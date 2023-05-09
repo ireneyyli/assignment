@@ -39,7 +39,6 @@ public class Server {
         private CreateWhiteBoard board;
         private Client.IClientRO client;
         private HashMap<String, Client.IClientRO> clientName = new HashMap<String, Client.IClientRO>();
-        private JoinWhiteBoard clientBoard;
 
         public ServerRO(CreateWhiteBoard board) throws RemoteException {
             this.board = board;

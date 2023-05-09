@@ -16,8 +16,6 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
     private int startX, startY, endX, endY;
     private String currentAction = "Pen";
     private Color currentColor = Color.BLACK;
-    private Graphics2D graph;
-    private BufferedImage image;
 
     private Client client;
     
@@ -111,6 +109,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         g.setColor(currentColor);
         if (currentAction.equals("Pen")) {
             try {
+            	g.drawLine(startX, startY, endX, endY);
             	client.drawClientPen(startX, startY, endX, endY);
             } catch (Exception ex) {
             	ex.printStackTrace();
@@ -162,9 +161,14 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         Graphics g = drawingArea.getGraphics();
         g.setColor(currentColor);
         if (currentAction.equals("Pen")) {
-            g.drawLine(startX, startY, endX, endY);
             startX = endX;
             startY = endY;
+            try {
+            	g.drawLine(startX, startY, endX, endY);
+            	client.drawClientPen(startX, startY, endX, endY);
+            } catch (Exception ex) {
+            	ex.printStackTrace();
+            }
         }
     }
 
@@ -172,7 +176,6 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
     }
 
     public static void main(String[] args) throws RemoteException {
-        new JoinWhiteBoard("localhost", "9999", args[0]);
-        System.out.print(args[0]);
+        new JoinWhiteBoard("localhost", "9999", "client");
     }
 }
