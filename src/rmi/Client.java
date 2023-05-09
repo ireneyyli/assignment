@@ -23,6 +23,7 @@ public class Client {
     	public Boolean drawClientPen(int startX, int startY, int endX, int endY) throws RemoteException;
         public Boolean drawClientLine(int startX, int startY, int endX, int endY) throws RemoteException;
         public Boolean drawClientCircle(int x, int y, int width, int height) throws RemoteException;
+        public Boolean drawClientOval(int x, int y, int width, int height) throws RemoteException;
         public Boolean drawClientRect(int x, int y, int width, int height) throws RemoteException;
     }
 
@@ -66,6 +67,20 @@ public class Client {
         
         @Override
         public Boolean drawClientCircle(int x, int y, int width, int height) throws RemoteException {
+            try {
+            	Graphics g = this.board.getDrawingArea().getGraphics();
+            	g.drawOval(x, y, width, height);
+            	
+                return true;
+            } catch (Exception e) {
+                System.out.println("Client exception: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        }
+        
+        @Override
+        public Boolean drawClientOval(int x, int y, int width, int height) throws RemoteException {
             try {
             	Graphics g = this.board.getDrawingArea().getGraphics();
             	g.drawOval(x, y, width, height);
@@ -133,6 +148,10 @@ public class Client {
     
     public void drawClientCircle(int x, int y, int width, int height) throws RemoteException  {
         serverRO.drawServerCircle(x, y, width, height);
+    }
+    
+    public void drawClientOval(int x, int y, int width, int height) throws RemoteException  {
+        serverRO.drawServerOval(x, y, width, height);
     }
     
     public void drawClientRect(int x, int y, int width, int height) throws RemoteException  {

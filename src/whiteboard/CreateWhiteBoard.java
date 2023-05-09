@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 
 public class CreateWhiteBoard extends JFrame implements Serializable, ActionListener, MouseListener, MouseMotionListener {
-    private JButton penBtn, lineBtn, circleBtn, rectBtn, clearBtn;
+    private JButton penBtn, lineBtn, circleBtn, ovalBtn, rectBtn, clearBtn;
     private JPanel drawingArea;
     private int startX, startY, endX, endY;
     private String currentAction = "Pen";
@@ -43,6 +43,8 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         lineBtn.addActionListener(this);
         circleBtn = new JButton("Circle");
         circleBtn.addActionListener(this);
+        ovalBtn = new JButton("Oval");
+        ovalBtn.addActionListener(this);
         rectBtn = new JButton("Rectangle");
         rectBtn.addActionListener(this);
         clearBtn = new JButton("Clear");
@@ -50,6 +52,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         toolBar.add(penBtn);
         toolBar.add(lineBtn);
         toolBar.add(circleBtn);
+        toolBar.add(ovalBtn);
         toolBar.add(rectBtn);
         toolBar.add(clearBtn);
 
@@ -82,6 +85,9 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         } 
         else if (e.getSource() == circleBtn) {
             currentAction = "Circle";
+        } 
+        else if (e.getSource() == ovalBtn) {
+            currentAction = "Oval";
         } 
         else if (e.getSource() == rectBtn) {
             currentAction = "Rectangle";
@@ -130,7 +136,19 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         		int width = Math.abs(startX - endX);
         		int height = Math.abs(startY - endY);
         		width = Math.max(width, height);
-            	server.drawServerCircle(x, y, width, height);
+            	server.drawServerCircle(x, y, width, width);
+            	
+            } catch (Exception ex) {
+            	ex.printStackTrace();
+            }
+        }
+        else if (currentAction.equals("Oval")) {
+            try {
+            	int x = Math.min(startX, endX);
+        		int y= Math.min(startY, endY);
+        		int width = Math.abs(startX - endX);
+        		int height = Math.abs(startY - endY);
+            	server.drawServerOval(x, y, width, height);
             	
             } catch (Exception ex) {
             	ex.printStackTrace();

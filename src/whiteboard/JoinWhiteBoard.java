@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 import java.rmi.RemoteException;
 
 public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListener, MouseMotionListener {
-    private JButton pointBtn, lineBtn, circleBtn, rectBtn, clearBtn;
+    private JButton pointBtn, lineBtn, circleBtn, ovalBtn, rectBtn, clearBtn;
     private JPanel drawingArea;
     private int startX, startY, endX, endY;
     private String currentAction = "Pen";
@@ -42,6 +42,8 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         pointBtn.addActionListener(this);
         circleBtn = new JButton("Circle");
         circleBtn.addActionListener(this);
+        ovalBtn = new JButton("Oval");
+        ovalBtn.addActionListener(this);
         rectBtn = new JButton("Rectangle");
         rectBtn.addActionListener(this);
         clearBtn = new JButton("Clear");
@@ -49,6 +51,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         toolBar.add(pointBtn);
         toolBar.add(lineBtn);
         toolBar.add(circleBtn);
+        toolBar.add(ovalBtn);
         toolBar.add(rectBtn);
         toolBar.add(clearBtn);
 
@@ -81,6 +84,9 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         } 
         else if (e.getSource() == circleBtn) {
         	currentAction = "Circle";
+        }
+        else if (e.getSource() == ovalBtn) {
+        	currentAction = "Oval";
         }
         else if (e.getSource() == rectBtn) {
         	currentAction = "Rectangle";
@@ -129,7 +135,18 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         		int width = Math.abs(startX - endX);
         		int height = Math.abs(startY - endY);
         		width = Math.max(width, height);
-            	client.drawClientCircle(x, y, width, height);
+            	client.drawClientCircle(x, y, width, width);
+            } catch (Exception ex) {
+            	ex.printStackTrace();
+            }
+        }
+        else if (currentAction.equals("Oval")) {
+            try {
+            	int x = Math.min(startX, endX);
+        		int y= Math.min(startY, endY);
+        		int width = Math.abs(startX - endX);
+        		int height = Math.abs(startY - endY);
+            	client.drawClientOval(x, y, width, height);
             } catch (Exception ex) {
             	ex.printStackTrace();
             }

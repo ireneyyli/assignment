@@ -31,6 +31,8 @@ public class Server {
         
         public Boolean drawServerCircle(int x, int y, int width, int height) throws RemoteException;
         
+        public Boolean drawServerOval(int x, int y, int width, int height) throws RemoteException;
+        
         public Boolean drawServerRect(int x, int y, int width, int height) throws RemoteException;
     }
 
@@ -115,6 +117,26 @@ public class Server {
         }
         
         @Override
+        public Boolean drawServerOval(int x, int y, int width, int height) throws RemoteException {
+            try {
+                
+            	Graphics g = this.board.getDrawingArea().getGraphics();
+            	g.drawOval(x, y, width, height);
+            	for (HashMap.Entry<String, Client.IClientRO> entry : clientName.entrySet()) {
+                    String key = entry.getKey();
+                    Client.IClientRO clientRO = entry.getValue();
+                    if (clientRO != null)
+                    	clientRO.drawClientOval(x, y, width, height);
+            	}
+                return true;
+            } catch (Exception e) {
+                System.out.println("Server exception: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        }
+        
+        @Override
         public Boolean drawServerRect(int x, int y, int width, int height) throws RemoteException {
             try {
                 
@@ -175,6 +197,10 @@ public class Server {
     
     public void drawServerCircle(int x, int y, int width, int height) throws RemoteException {
         serverRo.drawServerCircle(x, y, width, height);
+    }
+    
+    public void drawServerOval(int x, int y, int width, int height) throws RemoteException {
+        serverRo.drawServerOval(x, y, width, height);
     }
     
     public void drawServerRect(int x, int y, int width, int height) throws RemoteException {
