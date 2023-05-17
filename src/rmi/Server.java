@@ -108,6 +108,7 @@ public class Server {
             try {
             	board.getListModel().removeElement(selectedString);
             	
+                // TODO: 這部分要思考一下是不是每個 client 都要呼叫 kickClientParticipants 這個 method 唷
             	for (HashMap.Entry<String, Client.IClientRO> entry : clientName.entrySet()) {
                     String key = entry.getKey();
                     Client.IClientRO clientRO = entry.getValue();
