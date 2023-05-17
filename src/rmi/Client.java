@@ -14,6 +14,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import shape.WBCircle;
@@ -32,7 +33,9 @@ public class Client {
 
     // 定義遠端可以使用的 Method (注意：是給 Server 端使用)
     public interface IClientRO extends Remote {
-    	public Boolean updateClientParticipants(DefaultListModel listModel) throws RemoteException;
+    	public Boolean addClientParticipants(DefaultListModel listModel) throws RemoteException;
+    	public Boolean addClientParticipants(String selectedString) throws RemoteException;
+    	public Boolean kickClientParticipants(String selectedString) throws RemoteException;
     	public Boolean sendClientMessage(String message) throws RemoteException;
     	public Boolean drawClientPen(int startX, int startY, int endX, int endY, Color color) throws RemoteException;
         public Boolean drawClientLine(int startX, int startY, int endX, int endY, Color color) throws RemoteException;
@@ -53,9 +56,38 @@ public class Client {
 
         // 接收由 Server 端傳回之訊息
         @Override
-        public Boolean updateClientParticipants(DefaultListModel listModel) throws RemoteException {
+        public Boolean addClientParticipants(DefaultListModel listModel) throws RemoteException {
             try {
             	board.setListModel(listModel);
+            	
+                return true;
+            } catch (Exception e) {
+                System.out.println("Client exception: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        }
+        
+        @Override
+        public Boolean addClientParticipants(String selectedString) throws RemoteException {
+            try {
+            	board.getListModel().addElement(selectedString);
+            	
+                return true;
+            } catch (Exception e) {
+                System.out.println("Client exception: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        }
+        
+        @Override
+        public Boolean kickClientParticipants(String selectedString) throws RemoteException {
+            try {
+            	board.getListModel().removeElement(selectedString);
+            	
+            	//JOptionPane.showMessageDialog(null, "You have been removed from the room by the manager", "Leave Room", JOptionPane.INFORMATION_MESSAGE);
+            	//board.dispose();
             	
                 return true;
             } catch (Exception e) {
@@ -157,6 +189,7 @@ public class Client {
         public Boolean drawClientText(int startX, int startY, String text, Color color) throws RemoteException {
             try {
             	Graphics g = this.board.getDrawingArea().getGraphics();
+            	if (text == null) text = "";
             	WBText textContent = new WBText(startX, startY, text, color);
             	textContent.addToGraphics(g);
             	

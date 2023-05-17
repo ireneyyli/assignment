@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import javax.imageio.ImageIO;
+import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import whiteboard.CreateWhiteBoard;
@@ -29,6 +31,10 @@ public class Server {
     // 定義遠端可以使用的 Method (注意：是給 Client 端使用)
     public interface IServerRO extends Remote {
         public void registerClient(String username, Client.IClientRO client) throws RemoteException;
+        
+        public Boolean addServerParticipants(String selectedString) throws RemoteException;
+        
+        public Boolean kickServerParticipants(String selectedIndex) throws RemoteException;
         
         public Boolean sendServerMessage(String message) throws RemoteException;
         
@@ -68,7 +74,7 @@ public class Server {
                 String key = entry.getKey();
                 Client.IClientRO clientRO = entry.getValue();
                 if (clientRO != null)
-                	client.updateClientParticipants(board.getListModel());
+                	client.addClientParticipants(board.getListModel());
         	}
      
             JPanel serverBoard = board.getDrawingArea();
@@ -78,6 +84,44 @@ public class Server {
         }
 
         // 處理由 Client 端發送的畫布更新資訊
+        @Override
+        public Boolean addServerParticipants(String selectedString) throws RemoteException {
+            try {
+            	board.getListModel().addElement(selectedString);
+            	
+            	for (HashMap.Entry<String, Client.IClientRO> entry : clientName.entrySet()) {
+                    String key = entry.getKey();
+                    Client.IClientRO clientRO = entry.getValue();
+                    if (clientRO != null)
+                    	clientRO.addClientParticipants(selectedString);
+            	}
+                return true;
+            } catch (Exception e) {
+                System.out.println("Server exception: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        }
+        
+        @Override
+        public Boolean kickServerParticipants(String selectedString) throws RemoteException {
+            try {
+            	board.getListModel().removeElement(selectedString);
+            	
+            	for (HashMap.Entry<String, Client.IClientRO> entry : clientName.entrySet()) {
+                    String key = entry.getKey();
+                    Client.IClientRO clientRO = entry.getValue();
+                    if (clientRO != null)
+                    	clientRO.kickClientParticipants(selectedString);
+            	}
+                return true;
+            } catch (Exception e) {
+                System.out.println("Server exception: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        }
+        
         @Override
         public Boolean sendServerMessage(String message) throws RemoteException {
             try {
@@ -209,6 +253,7 @@ public class Server {
             try {
                 
             	Graphics g = this.board.getDrawingArea().getGraphics();
+            	if (text == null) text = "";
             	WBText textContent = new WBText(startX, startY, text, color);
             	textContent.addToGraphics(g);
             	stack.push(textContent);
@@ -257,6 +302,14 @@ public class Server {
     }
 
     // 當畫布更新時，要通知所有 Client 端也要同步畫布
+    public void addServerParticipants(String selectedString) throws RemoteException {
+    	serverRo.addServerParticipants(selectedString);
+    }
+    
+    public void kickServerParticipants(String selectedString) throws RemoteException {
+    	serverRo.kickServerParticipants(selectedString);
+    }
+    
     public void sendServerMessage(String message) throws RemoteException {
     	serverRo.sendServerMessage(message);
     }

@@ -11,13 +11,13 @@ import java.rmi.RemoteException;
 
 public class CreateWhiteBoard extends JFrame implements Serializable, ActionListener, MouseListener, MouseMotionListener {
     private JButton penBtn, lineBtn, circleBtn, ovalBtn, rectBtn, textBtn, eraserBtn, clearBtn;
-    private ImageIcon penIcon, lineIcon, circleIcon, ovalIcon, rectIcon, textIcon, eraserIcon;
+    private ImageIcon penIcon, lineIcon, circleIcon, ovalIcon, rectIcon, textIcon, eraserIcon, clearIcon;
     private JMenuBar menuBar;
     private JMenu fileMenu, propertiesMenu;
     private JMenuItem newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, closeMenuItem, colourMenuItem;
     private JPanel toolBox, drawingArea, chatArea;
     private JLabel userLabel, chatLabel, toLabel;
-    private JTextArea nameList, chatWindow, chatText;
+	private JTextArea chatWindow, chatText;
     private JScrollPane listScrollPane, chatScrollPane, chatTextScrollPane;
     private JButton removeBtn, sendBtn;
     private int startX, startY, endX, endY;
@@ -27,6 +27,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
     private Server server;
     private DefaultListModel listModel;
     private String message;
+    private JList nameList;
     
     public JPanel getDrawingArea() {
     	return drawingArea;
@@ -36,8 +37,19 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
     	return listModel;
     }
     
+    public JList getNameList() {
+    	return nameList;
+    }
+    
     public JTextArea getChatWindow() {
     	return chatWindow;
+    }
+    
+    public void setListModel(DefaultListModel listModel) {
+    	for (Object name: listModel.toArray()) {
+    		if (!listModel.contains(name))
+    			this.listModel.addElement(name);
+    	}
     }
 
     public CreateWhiteBoard(String host, String port, String username) throws RemoteException {
@@ -130,8 +142,6 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         eraserBtn.addActionListener(this);
         eraserBtn.setBorderPainted(false);
         eraserBtn.setContentAreaFilled(false);
-        clearBtn = new JButton("Clear");
-        clearBtn.addActionListener(this);
         
         toolBox.setLayout(new GridLayout(13, 1, 0, 0));
         toolBox.add(penBtn);
@@ -141,7 +151,6 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         toolBox.add(rectBtn);
         toolBox.add(textBtn);
         toolBox.add(eraserBtn);
-        //toolBox.add(clearBtn);
 
         // 建立畫布區域
         drawingArea = new JPanel();
@@ -158,7 +167,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         listModel = new DefaultListModel();
         listModel.addElement(username);
         
-        JList nameList = new JList(listModel);
+        nameList = new JList(listModel);
         nameList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         nameList.setLayoutOrientation(JList.VERTICAL);
         nameList.setVisibleRowCount(-1);
@@ -173,10 +182,16 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
             @Override
             public void actionPerformed(ActionEvent e) {
             	DefaultListModel model = (DefaultListModel) nameList.getModel();
-            	int selectedIndex = nameList.getSelectedIndex();
-            	if (selectedIndex != -1) {
-            	    model.remove(selectedIndex);
-            	}
+				int selectedIndex = nameList.getSelectedIndex();
+				if (selectedIndex != -1) {
+				    try {
+				    	String selectedString = (String) model.getElementAt(selectedIndex);
+						server.kickServerParticipants(selectedString);
+					} catch (RemoteException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
             }
         });
         

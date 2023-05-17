@@ -16,7 +16,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
     private JMenuItem colourMenuItem;
     private JPanel toolBox, drawingArea, chatArea;
     private JLabel userLabel, chatLabel, toLabel;
-    private JTextArea nameList, chatWindow, chatText;
+	private JTextArea chatWindow, chatText;
     private JScrollPane listScrollPane, chatScrollPane, chatTextScrollPane;
     private JButton sendBtn;
     private int startX, startY, endX, endY;
@@ -25,11 +25,20 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
     private String inputText = "";
     private DefaultListModel listModel;
     private String message = "";
+    private JList nameList;
 
     private Client client;
     
     public JPanel getDrawingArea() {
     	return drawingArea;
+    }
+    
+    public JList getNameList() {
+    	return nameList;
+    }
+    
+    public DefaultListModel getListModel() {
+    	return listModel;
     }
     
     public JTextArea getChatWindow() {
@@ -139,7 +148,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         
         listModel = new DefaultListModel();
         
-        JList nameList = new JList(listModel);
+        nameList = new JList(listModel);
         nameList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         nameList.setLayoutOrientation(JList.VERTICAL);
         nameList.setVisibleRowCount(-1);
@@ -362,6 +371,6 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
     }
 
     public static void main(String[] args) throws RemoteException {
-        new JoinWhiteBoard("localhost", "9999", "client");
+        new JoinWhiteBoard("localhost", "9999", "client1");
     }
 }
