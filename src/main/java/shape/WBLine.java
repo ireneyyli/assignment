@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 
 import org.json.simple.JSONObject;
 
-import rmi.Client.IClientRO;
+import rmi.IClientRO;
 
 public class WBLine implements IShape {
 	public WBLine(int startX, int startY, int endX, int endY, Color color) {
@@ -75,6 +75,7 @@ public class WBLine implements IShape {
 		client.drawClientLine(startX, startY, endX, endY, color);
 	}
 
+	@SuppressWarnings("unchecked")
 	public JSONObject toJSON() {
 		// TODO Auto-generated method stub
 		JSONObject obj = new JSONObject();
@@ -86,6 +87,17 @@ public class WBLine implements IShape {
 		obj.put("endX", endX);
 		obj.put("endY", endY);
 		return obj;
+	}
+	
+	public static WBLine loadFromJSON(JSONObject obj) 
+	{
+		// TODO Auto-generated method stub
+		int startX = Integer.parseInt(obj.get("startX").toString());
+		int startY = Integer.parseInt(obj.get("startY").toString());
+		int endX = Integer.parseInt(obj.get("endX").toString());
+		int endY = Integer.parseInt(obj.get("endY").toString());
+		Color color = Color.decode(obj.get("color").toString());
+		return new WBLine(startX, startY, endX, endY, color);
 	}
 
 }

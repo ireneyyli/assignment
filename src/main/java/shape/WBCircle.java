@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 
 import org.json.simple.JSONObject;
 
-import rmi.Client.IClientRO;
+import rmi.IClientRO;
 
 public class WBCircle implements IShape {
 	public WBCircle(int x, int y, int width, int height, Color color) {

@@ -4,12 +4,12 @@ import java.rmi.RemoteException;
 
 import org.json.simple.JSONObject;
 
-import rmi.Client;
+import rmi.IClientRO;
 
 public interface IShape {
 	public void addToGraphics(Graphics g);
 	
-	public void sendToClient(Client.IClientRO client) throws RemoteException;
+	public void sendToClient(IClientRO client) throws RemoteException;
 	
 	public JSONObject toJSON();
 		

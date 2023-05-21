@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 
 import org.json.simple.JSONObject;
 
-import rmi.Client;
+import rmi.IClientRO;
 
 public class WBOval implements IShape {
 	public WBOval(int x, int y, int width, int height, Color color) {
@@ -69,10 +69,11 @@ public class WBOval implements IShape {
     	g.drawOval(x, y, width, height);
 	}
 	
-	public void sendToClient(Client.IClientRO client)  throws RemoteException {
+	public void sendToClient(IClientRO client)  throws RemoteException {
 		client.drawClientOval(x, y, width, height, color);
 	}
 
+	@SuppressWarnings("unchecked")
 	public JSONObject toJSON() {
 		// TODO Auto-generated method stub
 		JSONObject obj = new JSONObject();
@@ -85,4 +86,16 @@ public class WBOval implements IShape {
 		obj.put("height", height);
 		return obj;
 	}
+	
+	public static WBOval loadFromJSON(JSONObject obj) 
+	{
+		// TODO Auto-generated method stub
+		int x = Integer.parseInt(obj.get("x").toString());
+		int y = Integer.parseInt(obj.get("y").toString());
+		int width = Integer.parseInt(obj.get("width").toString());
+		int height = Integer.parseInt(obj.get("height").toString());
+		Color color = Color.decode(obj.get("color").toString());
+		return new WBOval(x, y, width, height, color);
+	}
+
 }

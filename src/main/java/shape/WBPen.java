@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
 
 import org.json.simple.JSONObject;
 
-import rmi.Client;
+import rmi.IClientRO;
 
 public class WBPen implements IShape {
 	public WBPen(int startX, int startY, int endX, int endY, Color color) {
@@ -73,10 +73,11 @@ public class WBPen implements IShape {
     	g2.drawLine(startX, startY, endX, endY);
 	};
 	
-	public void sendToClient(Client.IClientRO client) throws RemoteException {
+	public void sendToClient(IClientRO client) throws RemoteException {
 		client.drawClientPen(startX, startY, endX, endY, color);
 	}
 
+	@SuppressWarnings("unchecked")
 	public JSONObject toJSON() {
 		// TODO Auto-generated method stub
 		JSONObject obj = new JSONObject();
@@ -89,4 +90,15 @@ public class WBPen implements IShape {
 		obj.put("endY", endY);
 		return obj;
 	};
+	
+	public static WBPen loadFromJSON(JSONObject obj) 
+	{
+		// TODO Auto-generated method stub
+		int startX = Integer.parseInt(obj.get("startX").toString());
+		int startY = Integer.parseInt(obj.get("startY").toString());
+		int endX = Integer.parseInt(obj.get("endX").toString());
+		int endY = Integer.parseInt(obj.get("endY").toString());
+		Color color = Color.decode(obj.get("color").toString());
+		return new WBPen(startX, startY, endX, endY, color);
+	}
 }

@@ -55,7 +55,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
     public JoinWhiteBoard(String host, String port, final String username) throws RemoteException {
         super("User: " + username + "'s Board");
 
-        // 設定視窗大小及其他屬性
+        // Set window size and other properties
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
@@ -76,7 +76,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         propertiesMenu.add(colourMenuItem);
 
 
-        // 建立畫面上方的工具列
+        // Create a toolbox at the left of the screen
         toolBox = new JPanel();
         penIcon = new ImageIcon(new ImageIcon("src/main/java/icon/penIcon.png").getImage().getScaledInstance(30, 25, Image.SCALE_SMOOTH));
         penBtn = new JButton(penIcon);
@@ -133,13 +133,13 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         toolBox.add(eraserBtn);
         //toolBox.add(clearBtn)
 
-        // 建立畫布區域
+        // Create the drawing area
         drawingArea = new JPanel();
         drawingArea.setBackground(Color.WHITE);
         drawingArea.addMouseListener(this);
         drawingArea.addMouseMotionListener(this);
         
-        // 建立聊天區域
+        // Create the chatting area
         chatArea = new JPanel();
         chatArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         
@@ -194,18 +194,18 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         chatArea.add(chatTextScrollPane);
         chatArea.add(sendBtn);
 
-        // 把工具列和畫布區域加到視窗中
+        // Add toolbox and canvas area to windows
         Container content = getContentPane();
         content.add(menuBar, BorderLayout.NORTH);
         content.add(toolBox, BorderLayout.WEST);
-        content.add(drawingArea, BorderLayout.CENTER); // 1. OL
+        content.add(drawingArea, BorderLayout.CENTER);
         content.add(chatArea, BorderLayout.EAST);
         
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
             	try {
-					client.kickClientParticipantsList(username);
+					client.kickClientParticipantsList(username, false);
 				} catch (RemoteException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -216,7 +216,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         setVisible(true);
         setResizable(false);
 
-        // 建立一個可以跟其他畫布同步的 Client 端
+        // Create a client that can synchronize with other canvases
         client = new Client(host, port, username, this);
         client.start();
         
@@ -224,7 +224,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
     }
     
     public void actionPerformed(ActionEvent e) {
-        // 根據使用者選擇的按鈕，設定當前動作
+        // According to the button selected by the user, set the current action
     	if (e.getSource() == penBtn) {
             currentAction = "Pen";
         }
@@ -265,13 +265,13 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         endX = e.getX();
         endY = e.getY();
 
-        // 根據當前動作，在畫布上畫出對應的圖形
+        // According to the current action, draw the corresponding graphics on the canvas
         Graphics g = drawingArea.getGraphics();
         g.setColor(currentColor);
         if (currentAction.equals("Pen")) {
             try {
             	Graphics2D g2 = (Graphics2D) g;
-                g2.setStroke(new BasicStroke(3)); // 設置筆觸寬度為3個像素
+                g2.setStroke(new BasicStroke(3)); // Set stroke width to 3 pixels
             	g2.drawLine(startX, startY, endX, endY);
             	client.drawClientPen(startX, startY, endX, endY, currentColor);
             } catch (Exception ex) {
@@ -330,7 +330,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         else if (currentAction.equals("Eraser")) {
             try {
             	Graphics2D g2 = (Graphics2D) g;
-                g2.setStroke(new BasicStroke(3)); // 設置筆觸寬度為3個像素
+                g2.setStroke(new BasicStroke(3)); // Set stroke width to 3 pixels
             	g2.drawLine(startX, startY, endX, endY);
             	client.drawClientPen(startX, startY, endX, endY, Color.WHITE);
             } catch (Exception ex) {
@@ -349,7 +349,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
         endX = e.getX();
         endY = e.getY();
 
-        // 根據當前動作，在畫布上畫出對應的圖形
+        // According to the current action, draw the corresponding graphics on the canvas
         Graphics g = drawingArea.getGraphics();
         g.setColor(currentColor);
         if (currentAction.equals("Pen")) {
@@ -357,7 +357,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
             startY = endY;
             try {
             	Graphics2D g2 = (Graphics2D) g;
-                g2.setStroke(new BasicStroke(3)); // 設置筆觸寬度為3個像素
+                g2.setStroke(new BasicStroke(3)); // Set stroke width to 3 pixels
             	g2.drawLine(startX, startY, endX, endY);
             	client.drawClientPen(startX, startY, endX, endY, currentColor);
             } catch (Exception ex) {
@@ -369,7 +369,7 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
             startY = endY;
             try {
             	Graphics2D g2 = (Graphics2D) g;
-                g2.setStroke(new BasicStroke(3)); // 設置筆觸寬度為3個像素
+                g2.setStroke(new BasicStroke(3)); // Set stroke width to 3 pixels
             	g2.drawLine(startX, startY, endX, endY);
             	client.drawClientPen(startX, startY, endX, endY, Color.WHITE);
             } catch (Exception ex) {
@@ -382,6 +382,6 @@ public class JoinWhiteBoard extends JFrame implements ActionListener, MouseListe
     }
 
     public static void main(String[] args) throws RemoteException {
-        new JoinWhiteBoard("localhost", "9999", "clien");
+        new JoinWhiteBoard("localhost", "9999", "client1");
     }
 }

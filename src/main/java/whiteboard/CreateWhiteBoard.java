@@ -7,6 +7,7 @@ import rmi.Server;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.Serializable;
+import java.net.BindException;
 import java.rmi.RemoteException;
 
 public class CreateWhiteBoard extends JFrame implements Serializable, ActionListener, MouseListener, MouseMotionListener {
@@ -55,7 +56,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
     public CreateWhiteBoard(String host, String port, final String username) throws RemoteException {
         super("Manager: " + username + "'s Board");
 
-        // 設定視窗大小及其他屬性
+        // Set window size and other properties
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
@@ -66,7 +67,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         newMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	try {
-					server.newServerBoard();
+					server.newServerBoard(true);
 				} catch (RemoteException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -111,7 +112,16 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         });
         
         closeMenuItem = new JMenuItem("Close");
-        closeMenuItem.addActionListener(this);
+        closeMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	try {
+					server.closeServerBoard();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            }
+        });
         
         propertiesMenu = new JMenu("Properties");
         colourMenuItem = new JMenuItem("Colours");
@@ -220,7 +230,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
 				if (selectedIndex != -1) {
 				    try {
 				    	String selectedString = (String) model.getElementAt(selectedIndex);
-						server.kickServerParticipants(selectedString);
+						server.kickServerParticipants(selectedString, true);
 					} catch (RemoteException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -270,24 +280,36 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         chatArea.add(chatTextScrollPane);
         chatArea.add(sendBtn);
 
-        // 把工具列和畫布區域加到視窗中
+        // Add toolbox and canvas area to windows
         Container content = getContentPane();
         content.add(menuBar, BorderLayout.NORTH);
         content.add(toolBox, BorderLayout.WEST);
         content.add(drawingArea, BorderLayout.CENTER);
         content.add(chatArea, BorderLayout.EAST);
+        
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+            	try {
+					server.closeServerBoard();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            }
+        });
 
         setVisible(true);
         setResizable(false);
 
-        // 建立一個可以跟其他畫布同步的 Server 端
+        // Create a server that can synchronize with other canvases
         server = new Server(host, port, username, this);
         server.start();
         // server.onBoardChanged(image, this);
     }
 
     public void actionPerformed(ActionEvent e) {
-        // 根據使用者選擇的按鈕，設定當前動作
+        // According to the button selected by the user, set the current action
     	if (e.getSource() == penBtn) {
             currentAction = "Pen";
         } 
@@ -309,11 +331,6 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         else if (e.getSource() == eraserBtn) {
             currentAction = "Eraser";
         }
-        /*else if (e.getSource() == clearBtn) {
-            Graphics g = drawingArea.getGraphics();
-            g.setColor(Color.WHITE);
-            g.fillRect(0, 0, drawingArea.getWidth(), drawingArea.getHeight());
-        }*/
     }
 
     public void mouseClicked(MouseEvent e) {
@@ -328,12 +345,12 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         endX = e.getX();
         endY = e.getY();
 
-        // 根據當前動作，在畫布上畫出對應的圖形
+        // According to the current action, draw the corresponding graphics on the canvas
         Graphics g = drawingArea.getGraphics();
         g.setColor(currentColor);
         if (currentAction.equals("Pen")) {
         	Graphics2D g2 = (Graphics2D) g;
-            g2.setStroke(new BasicStroke(3)); // 設置筆觸寬度為3個像素
+            g2.setStroke(new BasicStroke(3)); // Set stroke width to 3 pixels
             g2.drawLine(startX, startY, endX, endY);
             try {
             	server.drawServerPen(startX, startY, endX, endY, currentColor);
@@ -396,7 +413,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
         else if (currentAction.equals("Eraser")) {
             try {
             	Graphics2D g2 = (Graphics2D) g;
-                g2.setStroke(new BasicStroke(3)); // 設置筆觸寬度為3個像素
+                g2.setStroke(new BasicStroke(3)); // Set stroke width to 3 pixels
             	g2.drawLine(startX, startY, endX, endY);
             	server.drawServerPen(startX, startY, endX, endY, Color.WHITE);
             } catch (Exception ex) {
@@ -416,7 +433,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
 		endX = e.getX();
         endY = e.getY();
 
-        // 根據當前動作，在畫布上畫出對應的圖形
+        // According to the current action, draw the corresponding graphics on the canvas
         Graphics g = drawingArea.getGraphics();
         g.setColor(currentColor);
         if (currentAction.equals("Pen")) {
@@ -425,7 +442,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
             startY = endY;
             try {
             	Graphics2D g2 = (Graphics2D) g;
-                g2.setStroke(new BasicStroke(3)); // 設置筆觸寬度為3個像素
+                g2.setStroke(new BasicStroke(3)); // Set stroke width to 3 pixels
             	g2.drawLine(startX, startY, endX, endY);
             	server.drawServerPen(startX, startY, endX, endY, currentColor);
             } catch (Exception ex) {
@@ -438,7 +455,7 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
             startY = endY;
             try {
             	Graphics2D g2 = (Graphics2D) g;
-                g2.setStroke(new BasicStroke(3)); // 設置筆觸寬度為3個像素
+                g2.setStroke(new BasicStroke(3)); // Set stroke width to 3 pixels
             	g2.drawLine(startX, startY, endX, endY);
             	server.drawServerPen(startX, startY, endX, endY, Color.WHITE);
             } catch (Exception ex) {
@@ -450,7 +467,36 @@ public class CreateWhiteBoard extends JFrame implements Serializable, ActionList
     public void mouseMoved(MouseEvent e) {
     }
 
-    public static void main(String[] args) throws RemoteException {
-        new CreateWhiteBoard("localhost", "9999", "server");
+    public static void main(String[] args) throws RemoteException, BindException {
+    	String ip = args[0];
+		String port = args[1];
+		String username = args[2];
+		
+		try {
+	        int portNumber = Integer.parseInt(port);
+
+	        // 檢查port範圍是否正確
+	        if (portNumber < 1 || portNumber > 65535) {
+	            throw new IllegalArgumentException("Invalid port number. Port number should be between 1 and 65535.");
+	        }
+
+
+	        // 若以上檢查都通過，創建白板
+	        new CreateWhiteBoard(ip, port, username);
+//	        new CreateWhiteBoard("localhost", "9999", "server");
+	    }
+		catch (RemoteException e) {
+			System.out.println("System exception: Please check whether the server is opened repeatedly or the port is occupied");
+		}
+		catch (NumberFormatException e) {
+	        System.out.println("Invalid port number. Port number should be an integer.");
+	    } 
+		catch (IllegalArgumentException e) {
+	        System.out.println(e.getMessage());
+	    } 
+		catch (Exception e) {
+			e.printStackTrace();
+	    }
+        
     }
 }

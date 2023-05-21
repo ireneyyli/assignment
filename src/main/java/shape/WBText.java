@@ -9,7 +9,7 @@ import java.rmi.RemoteException;
 
 import org.json.simple.JSONObject;
 
-import rmi.Client;
+import rmi.IClientRO;
 
 public class WBText implements IShape {
 	public WBText(int startX, int startY, String text, Color color) {
@@ -65,10 +65,11 @@ public class WBText implements IShape {
     	g2.drawString(text, startX, startY);
 	};
 	
-	public void sendToClient(Client.IClientRO client) throws RemoteException {
+	public void sendToClient(IClientRO client) throws RemoteException {
 		client.drawClientText(startX, startY, text, color);
 	}
 
+	@SuppressWarnings("unchecked")
 	public JSONObject toJSON() {
 		// TODO Auto-generated method stub
 		JSONObject obj = new JSONObject();
@@ -80,4 +81,14 @@ public class WBText implements IShape {
 		obj.put("text", text);
 		return obj;
 	};
+	
+	public static WBText loadFromJSON(JSONObject obj) 
+	{
+		// TODO Auto-generated method stub
+		int startX = Integer.parseInt(obj.get("startX").toString());
+		int startY = Integer.parseInt(obj.get("startY").toString());
+		String text = obj.get("text").toString();
+		Color color = Color.decode(obj.get("color").toString());
+		return new WBText(startX, startY, text, color);
+	}
 }
